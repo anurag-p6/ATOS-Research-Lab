@@ -1,0 +1,19 @@
+# Compiler files
+contracts/cache/
+contracts/out/
+
+# Ignores development broadcast logs
+!/broadcast
+contracts/broadcast/*/31337/
+contracts/broadcast/**/dry-run/
+
+# Docs
+contracts/docs/
+contracts/build/
+
+# Dotenv file
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local

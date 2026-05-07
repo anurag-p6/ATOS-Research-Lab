@@ -1,0 +1,7 @@
+{
+  "transactions": [
+    {
+      "rpc": "https://api.calibration.node.glif.io/rpc/v1"
+    }
+  ]
+}
