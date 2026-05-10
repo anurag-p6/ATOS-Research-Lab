@@ -1,0 +1,50 @@
+# ATOS Rust agents: three processes (deployer / monitor / governance).
+# After deployer starts once, set DEPLOYER_PEER_ID in `.env` to its libp2p peer id
+# (from logs or GET http://localhost:3001/status), then `docker compose up -d` again
+# so monitor and governance can dial the deployer on the compose network.
+
+services:
+  deployer:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: atos-deployer
+    command:
+      ["--role", "deployer", "--port", "4001", "--api-port", "3001"]
+    ports:
+      - "4001:4001"
+      - "3001:3001"
+    environment:
+      RUST_LOG: ${RUST_LOG:-info}
+
+  monitor:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: atos-monitor
+    command:
+      ["--role", "monitor", "--port", "4002", "--api-port", "3002"]
+    ports:
+      - "4002:4002"
+      - "3002:3002"
+    environment:
+      RUST_LOG: ${RUST_LOG:-info}
+      ATOS_BOOTSTRAP_PEERS: ${ATOS_BOOTSTRAP_PEERS:-}
+    depends_on:
+      - deployer
+
+  governance:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: atos-governance
+    command:
+      ["--role", "governance", "--port", "4003", "--api-port", "3003"]
+    ports:
+      - "4003:4003"
+      - "3003:3003"
+    environment:
+      RUST_LOG: ${RUST_LOG:-info}
+      ATOS_BOOTSTRAP_PEERS: ${ATOS_BOOTSTRAP_PEERS:-}
+    depends_on:
+      - deployer

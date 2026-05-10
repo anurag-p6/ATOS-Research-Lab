@@ -1,0 +1,15 @@
+CLAUDE.md
+BUILD.md
+DEPLOYMENT_STRATEGY.md
+**/target/
+**/node_modules/
+**/dist/
+**/build/
+**/cache/
+**/out/
+**/artifacts/
+**/coverage/
+**/logs/
+**/logs/**
+**/logs/**/**
+**/logs/**/**/**
