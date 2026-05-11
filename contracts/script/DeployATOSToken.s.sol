@@ -10,7 +10,12 @@ import {ATOSToken} from "../src/ATOSToken.sol";
 contract DeployATOSToken is Script {
     error DeployATOSToken__MultipleSignersPassSender();
 
-    function run() external {
+    function run() external virtual {
+        _deployATOSToken();
+    }
+
+    /// @dev Split out so network-specific scripts (e.g. Butterfly) can `override run` and assert `block.chainid`.
+    function _deployATOSToken() internal {
         uint256 cap = vm.envOr("ATOS_CAP", uint256(1_000_000_000 ether));
         uint256 initial = vm.envOr("ATOS_INITIAL_SUPPLY", uint256(100_000_000 ether));
 
