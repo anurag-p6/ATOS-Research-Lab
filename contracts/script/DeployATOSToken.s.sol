@@ -26,7 +26,7 @@ contract DeployATOSToken is Script {
 
         vm.startBroadcast();
 
-        ATOSToken t = new ATOSToken(deployer, deployer, cap, initial);
+        ATOSToken t = new ATOSToken("ATOS Token", "ATOS", deployer, deployer, cap, initial);
 
         vm.stopBroadcast();
 

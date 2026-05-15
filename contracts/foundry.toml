@@ -3,14 +3,22 @@ src = "src"
 out = "out"
 libs = ["lib"]
 solc_version = "0.8.24"
+# Filecoin FEVM (per FIP-0054) supports the Paris opcode set + PUSH0 ONLY.
+# Cancun opcodes MCOPY (0x5e), TLOAD (0x5c), and TSTORE (0x5d) revert with "invalid opcode".
+# `shanghai` is the latest evm_version that emits PUSH0 but no Cancun opcodes.
+evm_version = "shanghai"
 optimizer = true
 optimizer_runs = 200
 
 [rpc_endpoints]
 # Ethereum Sepolia (EVM, chain id 11155111)
 sepolia = "${SEPOLIA_RPC_URL}"
+
 # Filecoin FEVM Calibration testnet (chain id 314159). There is no separate “Filecoin Sepolia”; this is Filecoin’s public EVM testnet.
 filecoin-calibration = "${FILECOIN_CALIBRATION_RPC_URL}"
+
+# Filecoin FEVM Butterfly testnet (chain id 3141592, hex 0x2fefd8). Short-lived dev network; override RPC in .env if the default is down.
+filecoin-butterfly = "${FILECOIN_BUTTERFLY_RPC_URL}"
 
 [etherscan]
 sepolia = { key = "${ETHERSCAN_API_KEY}", url = "https://api-sepolia.etherscan.io/api" }

@@ -18,16 +18,20 @@ contract ATOSToken is ERC20Capped, ERC20Burnable, ERC20Permit, Ownable2Step {
     /// @notice Thrown when `initialSupply` exceeds `cap_`.
     error ATOSToken_InitialSupplyExceedsCap(uint256 initialSupply, uint256 cap);
 
+    /// @param name_ ERC-20 name (e.g. "My Project Token").
+    /// @param symbol_ ERC-20 symbol (e.g. "MPT").
     /// @param initialOwner Admin (`onlyOwner`) for minting; subject to two-step ownership transfer.
     /// @param recipient Account receiving the initial mint (often same as `initialOwner`).
     /// @param cap_ Immutable maximum total supply across all mints (including initial).
     /// @param initialSupply Amount minted to `recipient` at deploy; must be `<= cap_`.
-    constructor(address initialOwner, address recipient, uint256 cap_, uint256 initialSupply)
-        ERC20("ATOS Token", "ATOS")
-        ERC20Capped(cap_)
-        ERC20Permit("ATOS Token")
-        Ownable(initialOwner)
-    {
+    constructor(
+        string memory name_,
+        string memory symbol_,
+        address initialOwner,
+        address recipient,
+        uint256 cap_,
+        uint256 initialSupply
+    ) ERC20(name_, symbol_) ERC20Capped(cap_) ERC20Permit(name_) Ownable(initialOwner) {
         if (recipient == address(0)) revert ATOSToken_ZeroAddress();
         if (initialSupply > cap_) {
             revert ATOSToken_InitialSupplyExceedsCap(initialSupply, cap_);
