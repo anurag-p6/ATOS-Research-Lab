@@ -103,6 +103,24 @@ pnpm start
 - All actionable controls are reachable via keyboard with a visible focus ring.
 - `prefers-reduced-motion: reduce` disables the heartbeat pulse, edge pulses, and ticker scroll.
 
+## Deploy on Vercel
+
+This app is **Next.js**, not a static `public/` export. In the Vercel project:
+
+| Setting | Value |
+| -------- | ----- |
+| **Root Directory** | `apps/web` |
+| **Framework Preset** | Next.js |
+| **Build Command** | `pnpm build` (default) |
+| **Output Directory** | *(leave empty — do not set `public`)* |
+| **Install Command** | `pnpm install` |
+
+`apps/web/vercel.json` pins `framework: "nextjs"` so Vercel does not treat the build as a static site.
+
+Add all variables from `.env.example` under **Project → Settings → Environment Variables**. Agent URLs (`DEPLOYER_AGENT_URL`, etc.) must point to reachable hosts in production (not `localhost` unless you tunnel).
+
+Redeploy after changing Root Directory or clearing **Output Directory**.
+
 ## Notes
 
 - Strict TypeScript, ESLint clean, no `any` in domain code.
