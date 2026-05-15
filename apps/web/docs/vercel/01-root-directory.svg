@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="720" height="320" viewBox="0 0 720 320" role="img" aria-labelledby="title desc">
+  <title id="title">Vercel Root Directory setting</title>
+  <desc id="desc">Set Root Directory to apps/web for the ATOS Next.js app</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#111"/>
+      <stop offset="100%" stop-color="#0a0a0a"/>
+    </linearGradient>
+  </defs>
+  <rect width="720" height="320" rx="12" fill="url(#bg)" stroke="#333" stroke-width="1"/>
+  <text x="24" y="36" fill="#ededed" font-family="system-ui,sans-serif" font-size="14" font-weight="600">Project Settings</text>
+  <text x="24" y="56" fill="#888" font-family="system-ui,sans-serif" font-size="11">General ’ Root Directory</text>
+  <rect x="24" y="72" width="672" height="1" fill="#2a2a2a"/>
+  <text x="24" y="108" fill="#ededed" font-family="system-ui,sans-serif" font-size="13" font-weight="500">Root Directory</text>
+  <text x="24" y="128" fill="#888" font-family="system-ui,sans-serif" font-size="11">The directory within your repository where your app lives.</text>
+  <rect x="24" y="148" width="400" height="40" rx="6" fill="#171717" stroke="#3ecf8e" stroke-width="2"/>
+  <text x="40" y="174" fill="#3ecf8e" font-family="ui-monospace,monospace" font-size="14">apps/web</text>
+  <rect x="440" y="148" width="100" height="40" rx="6" fill="#ededed"/>
+  <text x="468" y="174" fill="#000" font-family="system-ui,sans-serif" font-size="13" font-weight="600">Save</text>
+  <rect x="24" y="220" width="672" height="72" rx="8" fill="#1a2e1a" stroke="#3ecf8e" stroke-width="1" stroke-opacity="0.4"/>
+  <text x="40" y="248" fill="#3ecf8e" font-family="system-ui,sans-serif" font-size="12" font-weight="600"> Correct for ATOS</text>
+  <text x="40" y="268" fill="#aaa" font-family="system-ui,sans-serif" font-size="11">Monorepo: point Vercel at apps/web so package.json and vercel.json are found.</text>
+  <text x="40" y="284" fill="#888" font-family="ui-monospace,monospace" font-size="10">ATOS-Research-Lab/apps/web/</text>
+</svg>

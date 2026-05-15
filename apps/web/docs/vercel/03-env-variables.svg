@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="720" height="420" viewBox="0 0 720 420" role="img" aria-labelledby="title desc">
+  <title id="title">Vercel Environment Variables</title>
+  <desc id="desc">Required NEXT_PUBLIC and server-only env vars for ATOS web</desc>
+  <rect width="720" height="420" rx="12" fill="#0a0a0a" stroke="#333" stroke-width="1"/>
+  <text x="24" y="36" fill="#ededed" font-family="system-ui,sans-serif" font-size="14" font-weight="600">Environment Variables</text>
+  <text x="24" y="56" fill="#888" font-family="system-ui,sans-serif" font-size="11">Production · Preview · Development</text>
+  <rect x="24" y="72" width="672" height="1" fill="#2a2a2a"/>
+
+  <rect x="24" y="88" width="672" height="36" rx="4" fill="#171717"/>
+  <text x="40" y="111" fill="#888" font-family="system-ui,sans-serif" font-size="11" font-weight="600">KEY</text>
+  <text x="360" y="111" fill="#888" font-family="system-ui,sans-serif" font-size="11" font-weight="600">VALUE (hidden)</text>
+
+  <g font-family="ui-monospace,monospace" font-size="12">
+    <rect x="24" y="132" width="672" height="32" fill="#111"/>
+    <text x="40" y="152" fill="#00d4ff">NEXT_PUBLIC_PRIVY_APP_ID</text>
+    <text x="360" y="152" fill="#666">""""""""</text>
+
+    <rect x="24" y="164" width="672" height="32" fill="#0d0d0d"/>
+    <text x="40" y="184" fill="#00d4ff">NEXT_PUBLIC_CHAIN_ID</text>
+    <text x="360" y="184" fill="#888">11155111</text>
+
+    <rect x="24" y="196" width="672" height="32" fill="#111"/>
+    <text x="40" y="216" fill="#00d4ff">NEXT_PUBLIC_CONTRACT_ADDRESS</text>
+    <text x="360" y="216" fill="#666">""""""""</text>
+
+    <rect x="24" y="228" width="672" height="32" fill="#0d0d0d"/>
+    <text x="40" y="248" fill="#f59e0b">DEPLOYER_AGENT_URL</text>
+    <text x="360" y="248" fill="#888">https://&</text>
+
+    <rect x="24" y="260" width="672" height="32" fill="#111"/>
+    <text x="40" y="280" fill="#f59e0b">MONITOR_AGENT_URL</text>
+    <text x="360" y="280" fill="#888">https://&</text>
+
+    <rect x="24" y="292" width="672" height="32" fill="#0d0d0d"/>
+    <text x="40" y="312" fill="#f59e0b">GOVERNANCE_AGENT_URL</text>
+    <text x="360" y="312" fill="#888">https://&</text>
+  </g>
+
+  <rect x="24" y="340" width="672" height="64" rx="8" fill="#1a1a2e" stroke="#00d4ff" stroke-width="1" stroke-opacity="0.35"/>
+  <text x="40" y="364" fill="#00d4ff" font-family="system-ui,sans-serif" font-size="11" font-weight="600">NEXT_PUBLIC_* ’ browser</text>
+  <text x="40" y="382" fill="#f59e0b" font-family="system-ui,sans-serif" font-size="11" font-weight="600">DEPLOYER_* etc. ’ server route handlers only</text>
+  <text x="40" y="396" fill="#888" font-family="system-ui,sans-serif" font-size="10">Copy from apps/web/.env.example</text>
+</svg>
