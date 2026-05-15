@@ -1,0 +1,228 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    color-scheme: dark;
+    --grid-line: rgba(255, 255, 255, 0.04);
+    --grid-size: 32px;
+    --font-display: 'Space Grotesk', ui-sans-serif, system-ui, sans-serif;
+    --font-mono: 'JetBrains Mono', ui-monospace, 'SFMono-Regular', Menlo, monospace;
+    --font-numeric: 'IBM Plex Mono', ui-monospace, monospace;
+  }
+
+  html,
+  body {
+    background-color: #0a0a0f;
+    color: #e6e8eb;
+  }
+
+  body {
+    font-family: var(--font-display), ui-sans-serif, system-ui, sans-serif;
+    font-feature-settings: 'ss01', 'cv11';
+    text-rendering: optimizeLegibility;
+  }
+
+  /* Default focus ring tuned to the operator-console palette */
+  *:focus-visible {
+    outline: 1px solid rgba(0, 212, 255, 0.7);
+    outline-offset: 2px;
+    box-shadow: 0 0 0 4px rgba(0, 212, 255, 0.12);
+  }
+
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.06);
+    border-radius: 6px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 212, 255, 0.3);
+  }
+}
+
+@layer components {
+  /* The fine grid that lives behind the entire console. */
+  .atos-grid-overlay {
+    background-image:
+      linear-gradient(to right, var(--grid-line) 1px, transparent 1px),
+      linear-gradient(to bottom, var(--grid-line) 1px, transparent 1px);
+    background-size: var(--grid-size) var(--grid-size);
+    background-position: -1px -1px;
+    mask-image: radial-gradient(ellipse 80% 80% at 50% 30%, #000 50%, transparent 100%);
+  }
+
+  /* Soft radial vignette to focus attention on the center. */
+  .atos-vignette {
+    background:
+      radial-gradient(circle at 50% -10%, rgba(0, 212, 255, 0.05), transparent 55%),
+      radial-gradient(circle at 50% 110%, rgba(245, 158, 11, 0.03), transparent 60%);
+  }
+
+  /* Frosted operator card with optional online glow. */
+  .atos-card {
+    @apply relative rounded-md border bg-bg-raised/70 backdrop-blur-md;
+    border-color: rgba(0, 212, 255, 0.18);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.03),
+      inset 0 0 24px rgba(255, 255, 255, 0.015);
+  }
+
+  .atos-card-online {
+    border-color: rgba(0, 212, 255, 0.4);
+    box-shadow:
+      0 0 0 1px rgba(0, 212, 255, 0.18),
+      0 0 28px rgba(0, 212, 255, 0.12),
+      inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  }
+
+  .atos-card-offline {
+    border-color: rgba(239, 68, 68, 0.45);
+    box-shadow:
+      0 0 0 1px rgba(239, 68, 68, 0.28),
+      0 0 24px rgba(239, 68, 68, 0.16),
+      inset 0 0 18px rgba(239, 68, 68, 0.04);
+  }
+
+  .atos-chip {
+    @apply inline-flex items-center gap-1.5 rounded-sm border px-2 py-0.5 text-[11px] uppercase tracking-[0.14em];
+    border-color: rgba(255, 255, 255, 0.08);
+    background: rgba(255, 255, 255, 0.02);
+    color: #9aa0a6;
+  }
+
+  .atos-chip-cyan {
+    border-color: rgba(0, 212, 255, 0.4);
+    color: #00d4ff;
+    background: rgba(0, 212, 255, 0.06);
+  }
+
+  .atos-chip-amber {
+    border-color: rgba(245, 158, 11, 0.4);
+    color: #f59e0b;
+    background: rgba(245, 158, 11, 0.06);
+  }
+
+  .atos-chip-danger {
+    border-color: rgba(239, 68, 68, 0.5);
+    color: #ef4444;
+    background: rgba(239, 68, 68, 0.06);
+  }
+
+  .atos-chip-success {
+    border-color: rgba(16, 185, 129, 0.45);
+    color: #10b981;
+    background: rgba(16, 185, 129, 0.06);
+  }
+
+  /* Operator-style buttons: square-ish, thin border, cyan hover. */
+  .atos-btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-md border px-3 py-1.5 text-sm font-medium transition-colors;
+    @apply text-operator-text;
+    border-color: rgba(255, 255, 255, 0.12);
+    background: rgba(255, 255, 255, 0.02);
+  }
+  .atos-btn:hover {
+    border-color: rgba(0, 212, 255, 0.55);
+    color: #00d4ff;
+    box-shadow: 0 0 18px rgba(0, 212, 255, 0.15);
+  }
+  .atos-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    box-shadow: none;
+  }
+  .atos-btn-primary {
+    border-color: rgba(0, 212, 255, 0.55);
+    color: #00d4ff;
+    background: rgba(0, 212, 255, 0.06);
+  }
+  .atos-btn-primary:hover {
+    background: rgba(0, 212, 255, 0.1);
+    box-shadow: 0 0 24px rgba(0, 212, 255, 0.2);
+  }
+  .atos-btn-ghost {
+    border-color: transparent;
+    background: transparent;
+  }
+
+  .atos-input,
+  .atos-textarea,
+  .atos-select {
+    @apply w-full rounded-md border bg-bg-sunken/60 px-2.5 py-1.5 text-sm text-operator-text placeholder:text-operator-muted;
+    @apply focus:border-operator-cyan/70 focus:ring-0;
+    border-color: rgba(255, 255, 255, 0.1);
+  }
+  .atos-textarea {
+    @apply font-mono text-xs leading-relaxed;
+    min-height: 96px;
+  }
+
+  .atos-label {
+    @apply mb-1 block text-[11px] uppercase tracking-[0.16em] text-operator-muted;
+  }
+
+  .atos-mono {
+    font-family: var(--font-mono), ui-monospace, SFMono-Regular, Menlo, monospace;
+  }
+
+  .atos-numeric {
+    font-family: var(--font-numeric), ui-monospace, monospace;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .atos-heading {
+    font-family: var(--font-display), ui-sans-serif, system-ui;
+    letter-spacing: 0.02em;
+  }
+
+  /* No-signal terminal blocks. */
+  .atos-empty {
+    @apply flex min-h-[120px] items-center justify-center rounded-md border border-dashed text-center text-xs leading-relaxed text-operator-muted;
+    border-color: rgba(255, 255, 255, 0.08);
+    background: rgba(0, 0, 0, 0.25);
+    font-family: var(--font-mono), ui-monospace, monospace;
+  }
+
+  /* Status dot: tiny circle that pulses when "online". */
+  .atos-dot {
+    @apply inline-block h-2 w-2 rounded-full;
+  }
+  .atos-dot-cyan {
+    background: #00d4ff;
+    box-shadow: 0 0 8px rgba(0, 212, 255, 0.8);
+  }
+  .atos-dot-danger {
+    background: #ef4444;
+    box-shadow: 0 0 8px rgba(239, 68, 68, 0.7);
+  }
+  .atos-dot-muted {
+    background: rgba(255, 255, 255, 0.18);
+  }
+}
+
+@layer utilities {
+  .atos-shadow-glow {
+    box-shadow:
+      0 0 0 1px rgba(0, 212, 255, 0.18),
+      0 0 24px rgba(0, 212, 255, 0.12);
+  }
+
+  /* When a user prefers reduced motion, all decorative animations are stilled. */
+  @media (prefers-reduced-motion: reduce) {
+    .atos-respect-reduced-motion,
+    .animate-pulse-cyan,
+    .animate-edge-pulse,
+    .animate-ticker,
+    .animate-flicker {
+      animation: none !important;
+      transition: none !important;
+    }
+  }
+}
