@@ -1,0 +1,131 @@
+# ATOS — full-stack docker-compose
+# Spins up all 3 libp2p agents + the Next.js frontend in a single command.
+#
+# Usage:
+#   cp .env.example .env   # fill in keys
+#   docker compose up --build
+#   open http://localhost:3000
+#
+# Fault tolerance demo:
+#   docker compose stop atos-monitor
+#   docker compose start atos-monitor   # rejoins mesh via bootstrap
+
+services:
+  # ── libp2p agents ────────────────────────────────────────────────────────
+
+  atos-deployer:
+    build:
+      context: ./agents-rust
+      dockerfile: Dockerfile
+    container_name: atos-deployer
+    command:
+      ["--role", "deployer", "--port", "4001", "--api-port", "3001"]
+    ports:
+      - "4001:4001"
+      - "3001:3001"
+    networks:
+      - atos-net
+    environment:
+      RUST_LOG: ${RUST_LOG:-info}
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:3001/status || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 6
+      start_period: 15s
+
+  atos-monitor:
+    build:
+      context: ./agents-rust
+      dockerfile: Dockerfile
+    container_name: atos-monitor
+    command:
+      - "--role"
+      - "monitor"
+      - "--port"
+      - "4002"
+      - "--api-port"
+      - "3002"
+      - "--bootstrap"
+      - "/ip4/atos-deployer/tcp/4001"
+    ports:
+      - "4002:4002"
+      - "3002:3002"
+    networks:
+      - atos-net
+    environment:
+      RUST_LOG: ${RUST_LOG:-info}
+    depends_on:
+      atos-deployer:
+        condition: service_healthy
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:3002/status || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 6
+      start_period: 20s
+
+  atos-governance:
+    build:
+      context: ./agents-rust
+      dockerfile: Dockerfile
+    container_name: atos-governance
+    command:
+      - "--role"
+      - "governance"
+      - "--port"
+      - "4003"
+      - "--api-port"
+      - "3003"
+      - "--bootstrap"
+      - "/ip4/atos-deployer/tcp/4001"
+    ports:
+      - "4003:4003"
+      - "3003:3003"
+    networks:
+      - atos-net
+    environment:
+      RUST_LOG: ${RUST_LOG:-info}
+    depends_on:
+      atos-deployer:
+        condition: service_healthy
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:3003/status || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 6
+      start_period: 20s
+
+  # ── Next.js frontend ──────────────────────────────────────────────────────
+
+  atos-web:
+    build:
+      context: ./apps/web
+      dockerfile: Dockerfile
+    container_name: atos-web
+    ports:
+      - "3000:3000"
+    networks:
+      - atos-net
+    environment:
+      NEXT_PUBLIC_PRIVY_APP_ID: ${NEXT_PUBLIC_PRIVY_APP_ID}
+      NEXT_PUBLIC_CONTRACT_ADDRESS: ${NEXT_PUBLIC_CONTRACT_ADDRESS:-}
+      NEXT_PUBLIC_CHAIN_ID: ${NEXT_PUBLIC_CHAIN_ID:-11155111}
+      DEPLOYER_AGENT_URL: http://atos-deployer:3001
+      MONITOR_AGENT_URL: http://atos-monitor:3002
+      GOVERNANCE_AGENT_URL: http://atos-governance:3003
+    depends_on:
+      atos-deployer:
+        condition: service_healthy
+      atos-monitor:
+        condition: service_healthy
+      atos-governance:
+        condition: service_healthy
+    restart: unless-stopped
+
+networks:
+  atos-net:
+    driver: bridge
