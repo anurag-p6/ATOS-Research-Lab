@@ -16,7 +16,7 @@ contract ATOSTokenTest is Test {
 
     function setUp() public {
         vm.prank(owner);
-        token = new ATOSToken(owner, alice, CAP, INITIAL);
+        token = new ATOSToken("ATOS Token", "ATOS", owner, alice, CAP, INITIAL);
     }
 
     function test_metadata() public view {
@@ -65,12 +65,12 @@ contract ATOSTokenTest is Test {
 
     function test_constructor_reverts_zero_recipient() public {
         vm.expectRevert(ATOSToken.ATOSToken_ZeroAddress.selector);
-        new ATOSToken(owner, address(0), CAP, 0);
+        new ATOSToken("ATOS Token", "ATOS", owner, address(0), CAP, 0);
     }
 
     function test_constructor_reverts_initial_exceeds_cap() public {
         vm.expectRevert(abi.encodeWithSelector(ATOSToken.ATOSToken_InitialSupplyExceedsCap.selector, CAP + 1, CAP));
-        new ATOSToken(owner, alice, CAP, CAP + 1);
+        new ATOSToken("ATOS Token", "ATOS", owner, alice, CAP, CAP + 1);
     }
 
     function test_ownership_two_step() public {

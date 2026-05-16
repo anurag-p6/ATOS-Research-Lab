@@ -63,19 +63,34 @@ With a single imported account, Forge uses it as the broadcaster; the token owne
 
 ### Deploy (Filecoin Calibration — FEVM testnet)
 
-Filecoin does not run a network named “Sepolia.” The Ethereum-compatible Filecoin testnet is **Calibration** (chain id **314159**).
+The Ethereum-compatible Filecoin testnet is **Calibration** (chain id **314159**). Fund the deployer with **tFIL** (e.g. [ChainSafe Calibration faucet](https://faucet.calibnet.chainsafe-fil.io/funds.html)).
 
-1. Set `FILECOIN_CALIBRATION_RPC_URL` in `.env` (see `.env.example`), or pass `--rpc-url https://...` directly.
-2. Deploy (same script; fund the same address with **tFIL** on Calibration):
+1. Set `FILECOIN_CALIBRATION_RPC_URL` in `.env` (see `.env.example`). The `filecoin-calibration` alias in `foundry.toml` resolves to that URL.
+2. **Prefer `forge create` on FEVM** (matches the [official FEVM Foundry Kit](https://github.com/filecoin-project/fevm-foundry-kit)): it avoids `forge script` pre-broadcast simulation issues on Filecoin RPCs.
 
-```shell
-$ forge script script/DeployATOSToken.s.sol:DeployATOSToken \
-    --rpc-url filecoin-calibration \
-    --account <your_cast_wallet_label> \
-    --broadcast
-```
+   Helper script (Calibration; filename is historical):
 
-3. Verify on Blockscout (Etherscan-compatible API; use Blockscout as the verifier):
+   ```shell
+   $ ./script/deploy-butterfly.sh
+   ```
+
+   Or manually (adjust owner / cap / initial supply):
+
+   ```shell
+   $ forge create src/ATOSToken.sol:ATOSToken \
+       --rpc-url filecoin-calibration \
+       --account <your_cast_wallet_label> \
+       --broadcast \
+       --retries 20 \
+       --timeout 300 \
+       --constructor-args <owner> <recipient> <cap_wei> <initial_supply_wei>
+   ```
+
+   Sepolia-style `forge script` for Calibration is documented below only for parity; on FEVM it has been unreliable in practice.
+
+3. **Find the contract address:** check the `forge create` output (`Deployed to:`), or open your deployer on [Filfox Calibration](https://calibration.filfox.info/) / [Blockscout testnet](https://filecoin-testnet.blockscout.com/) and look for the latest **Contract Creation** transaction.
+
+4. Verify on Blockscout:
 
 ```shell
 $ forge verify-contract <DEPLOYED_ADDRESS> \
@@ -86,7 +101,9 @@ $ forge verify-contract <DEPLOYED_ADDRESS> \
     --constructor-args $(cast abi-encode "constructor(address,address,uint256,uint256)" <owner> <recipient> <cap> <initialSupply>)
 ```
 
-If `forge script ... --verify` on Calibration does not pick up Blockscout automatically, use the explicit `forge verify-contract` command above. Set `FILECOIN_BLOCKSCOUT_API_KEY` in `.env` if your Blockscout instance requires it (often a placeholder like `verify` is enough).
+Set `FILECOIN_BLOCKSCOUT_API_KEY` in `.env` if required (often `verify` is enough).
+
+For a standalone write-up of problems encountered on Calibration and how they were fixed (mentor / onboarding notes), see **[FILECOIN_CALIBRATION_DEPLOY_CHALLENGES.md](./FILECOIN_CALIBRATION_DEPLOY_CHALLENGES.md)**.
 
 ### Cast
 

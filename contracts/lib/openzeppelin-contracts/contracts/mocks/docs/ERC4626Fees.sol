@@ -7,13 +7,7 @@ import {ERC4626} from "../../token/ERC20/extensions/ERC4626.sol";
 import {SafeERC20} from "../../token/ERC20/utils/SafeERC20.sol";
 import {Math} from "../../utils/math/Math.sol";
 
-/// @dev ERC-4626 vault with entry/exit fees expressed in https://en.wikipedia.org/wiki/Basis_point[basis point (bp)].
-///
-/// NOTE: The contract charges fees in terms of assets, not shares. This means that the fees are calculated based on the
-/// amount of assets that are being deposited or withdrawn, and not based on the amount of shares that are being minted or
-/// redeemed. This is an opinionated design decision that should be taken into account when integrating this contract.
-///
-/// WARNING: This contract has not been audited and shouldn't be considered production ready. Consider using it with caution.
+/// @dev ERC4626 vault with entry/exit fees expressed in https://en.wikipedia.org/wiki/Basis_point[basis point (bp)].
 abstract contract ERC4626Fees is ERC4626 {
     using Math for uint256;
 
@@ -33,7 +27,7 @@ abstract contract ERC4626Fees is ERC4626 {
         return assets + _feeOnRaw(assets, _entryFeeBasisPoints());
     }
 
-    /// @dev Preview adding an exit fee on withdrawal. See {IERC4626-previewWithdraw}.
+    /// @dev Preview adding an exit fee on withdraw. See {IERC4626-previewWithdraw}.
     function previewWithdraw(uint256 assets) public view virtual override returns (uint256) {
         uint256 fee = _feeOnRaw(assets, _exitFeeBasisPoints());
         return super.previewWithdraw(assets + fee);
@@ -45,7 +39,7 @@ abstract contract ERC4626Fees is ERC4626 {
         return assets - _feeOnTotal(assets, _exitFeeBasisPoints());
     }
 
-    /// @dev Send entry fee to {_entryFeeRecipient}. See {ERC4626-_deposit}.
+    /// @dev Send entry fee to {_entryFeeRecipient}. See {IERC4626-_deposit}.
     function _deposit(address caller, address receiver, uint256 assets, uint256 shares) internal virtual override {
         uint256 fee = _feeOnTotal(assets, _entryFeeBasisPoints());
         address recipient = _entryFeeRecipient();
@@ -57,7 +51,7 @@ abstract contract ERC4626Fees is ERC4626 {
         }
     }
 
-    /// @dev Send exit fee to {_exitFeeRecipient}. See {ERC4626-_withdraw}.
+    /// @dev Send exit fee to {_exitFeeRecipient}. See {IERC4626-_deposit}.
     function _withdraw(
         address caller,
         address receiver,

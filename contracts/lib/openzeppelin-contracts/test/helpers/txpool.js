@@ -1,28 +1,38 @@
 const { network } = require('hardhat');
-const { expect } = require('chai');
+const { promisify } = require('util');
 
-const { unique } = require('./iterate');
+const queue = promisify(setImmediate);
 
-async function batchInBlock(txs, provider = network.provider) {
+async function countPendingTransactions() {
+  return parseInt(await network.provider.send('eth_getBlockTransactionCountByNumber', ['pending']));
+}
+
+async function batchInBlock(txs) {
   try {
     // disable auto-mining
-    await provider.send('evm_setAutomine', [false]);
+    await network.provider.send('evm_setAutomine', [false]);
     // send all transactions
-    const responses = await Promise.all(txs.map(fn => fn()));
+    const promises = txs.map(fn => fn());
+    // wait for node to have all pending transactions
+    while (txs.length > (await countPendingTransactions())) {
+      await queue();
+    }
     // mine one block
-    await provider.send('evm_mine');
+    await network.provider.send('evm_mine');
     // fetch receipts
-    const receipts = await Promise.all(responses.map(response => response.wait()));
+    const receipts = await Promise.all(promises);
     // Sanity check, all tx should be in the same block
-    expect(unique(receipts.map(receipt => receipt.blockNumber))).to.have.lengthOf(1);
-    // return responses
+    const minedBlocks = new Set(receipts.map(({ receipt }) => receipt.blockNumber));
+    expect(minedBlocks.size).to.equal(1);
+
     return receipts;
   } finally {
     // enable auto-mining
-    await provider.send('evm_setAutomine', [true]);
+    await network.provider.send('evm_setAutomine', [true]);
   }
 }
 
 module.exports = {
+  countPendingTransactions,
   batchInBlock,
 };

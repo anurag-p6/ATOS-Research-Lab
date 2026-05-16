@@ -75,7 +75,7 @@ export function AgentCard({ health }: { health: AgentHealth | undefined }) {
           </Badge>
         }
       />
-      <CardBody className="space-y-2.5">
+        <CardBody className="space-y-2.5">
         <Row label="peerId">
           <Mono value={status?.peerId ?? null} head={8} tail={6} copy />
         </Row>
@@ -113,6 +113,19 @@ export function AgentCard({ health }: { health: AgentHealth | undefined }) {
             </span>
           ) : null}
         </Row>
+
+        {/* PQC / ML-KEM-768 fingerprint */}
+        {status?.kyberEkFingerprint ? (
+          <Row label="kyber-ek">
+            <Mono value={status.kyberEkFingerprint} head={8} tail={6} copy />
+          </Row>
+        ) : null}
+        {status?.pqcStatus ? (
+          <p className="atos-mono mt-0.5 break-all text-[10px] text-operator-muted/70">
+            {status.pqcStatus}
+          </p>
+        ) : null}
+
         {!online && error ? (
           <p className="atos-mono mt-2 break-all rounded-sm border border-operator-danger/40 bg-operator-danger/5 p-2 text-[11px] text-operator-danger/90">
             {error}
@@ -120,16 +133,27 @@ export function AgentCard({ health }: { health: AgentHealth | undefined }) {
         ) : null}
         <div className="mt-2 flex items-center justify-between gap-2 border-t border-line pt-2">
           <span className="text-[11px] text-operator-muted">
-            local API · http://localhost:{status?.apiPort ?? '—'}
+            :{status?.apiPort ?? '—'}
           </span>
-          <a
-            href={`http://localhost:${status?.apiPort ?? ''}/status`}
-            target="_blank"
-            rel="noreferrer"
-            className="inline-flex items-center gap-1 text-[11px] text-operator-muted hover:text-operator-cyan"
-          >
-            open /status <ExternalLink size={11} aria-hidden="true" />
-          </a>
+          <div className="flex items-center gap-2">
+            <a
+              href={`http://localhost:${status?.apiPort ?? ''}/ipld/state`}
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center gap-1 text-[11px] text-operator-muted hover:text-operator-cyan"
+              title="IPLD agent state node (CIDv1, dag-json)"
+            >
+              ipld <ExternalLink size={11} aria-hidden="true" />
+            </a>
+            <a
+              href={`http://localhost:${status?.apiPort ?? ''}/status`}
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center gap-1 text-[11px] text-operator-muted hover:text-operator-cyan"
+            >
+              status <ExternalLink size={11} aria-hidden="true" />
+            </a>
+          </div>
         </div>
       </CardBody>
     </Card>

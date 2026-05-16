@@ -12,7 +12,7 @@ import { Card, CardBody, CardHeader } from './ui/Card';
 const AGENTS: AgentRole[] = ['deployer', 'monitor', 'governance'];
 
 const ACTIONS: Record<AgentRole, string[]> = {
-  deployer: ['deploy_token', 'upgrade_contract'],
+  deployer: ['deploy_token', 'create_token_via_factory', 'upgrade_contract', 'seed_uniswap_v3_pool'],
   monitor: ['monitor_events', 'check_balance'],
   governance: ['generate_cex_metadata', 'submit_proposal'],
 };
