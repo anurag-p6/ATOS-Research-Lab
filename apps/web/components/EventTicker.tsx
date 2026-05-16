@@ -66,22 +66,25 @@ export function EventTicker() {
               className="flex w-max gap-2 animate-ticker"
               style={{ animationDuration: `${Math.max(20, row.length * 2)}s` }}
             >
-              {row.map((e, idx) => (
-                <span
-                  key={`${e.origin}-${e.id}-${idx}`}
-                  className={`atos-chip atos-mono ${ROLE_COLOR[e.origin]} shrink-0`}
-                  title={`${e.topic} · ${e.id}`}
-                >
-                  <span className="text-operator-muted">{e.topic}</span>
-                  <span className="text-operator-text/85">{e.origin}</span>
-                  <span className="text-operator-muted">
-                    {truncateMiddle(e.id, 4, 4)}
+              {row.map((e, idx) => {
+                const displayCid = e.ipldCid ?? e.id;
+                return (
+                  <span
+                    key={`${e.origin}-${e.id}-${idx}`}
+                    className={`atos-chip atos-mono ${ROLE_COLOR[e.origin]} shrink-0`}
+                    title={`${e.topic} · CID: ${displayCid}`}
+                  >
+                    <span className="text-operator-muted">{e.topic}</span>
+                    <span className="text-operator-text/85">{e.origin}</span>
+                    <span className="text-operator-muted">
+                      {truncateMiddle(displayCid, 5, 4)}
+                    </span>
+                    <span className="text-operator-muted">
+                      {now ? relativeTime(e.timestamp, now) : ''}
+                    </span>
                   </span>
-                  <span className="text-operator-muted">
-                    {now ? relativeTime(e.timestamp, now) : ''}
-                  </span>
-                </span>
-              ))}
+                );
+              })}
             </div>
           )}
         </div>

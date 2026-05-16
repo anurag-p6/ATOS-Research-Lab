@@ -15,12 +15,18 @@ export interface AgentStatus {
   connectedPeers: string[];
   connectionCount: number;
   uptimeSecs: number;
+  /** First 32 hex chars of ML-KEM-768 encapsulation key (public). */
+  kyberEkFingerprint?: string;
+  /** Human-readable PQC status string. */
+  pqcStatus?: string;
 }
 
 export type AgentTopic = 'atos/tasks' | 'atos/status' | 'atos/heartbeat';
 
 export interface AgentMessage<T = Record<string, unknown>> {
   id: string;
+  /** CIDv1(dag-json, sha2-256) of the IPLD node backing this message. */
+  ipldCid?: string;
   role: AgentRole;
   topic: AgentTopic;
   timestamp: number;

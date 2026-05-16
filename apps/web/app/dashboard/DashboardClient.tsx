@@ -10,6 +10,8 @@ import { TaskForm } from '@/components/TaskForm';
 import { TaskFeed } from '@/components/TaskFeed';
 import { NetworkGraph } from '@/components/NetworkGraph';
 import { DexPriceWidget } from '@/components/DexPriceWidget';
+import { LiquidityFlowCard } from '@/components/LiquidityFlowCard';
+import { TokenFactoryCard } from '@/components/TokenFactoryCard';
 import { CexPrepCard } from '@/components/CexPrepCard';
 import { EventTicker } from '@/components/EventTicker';
 import { WalletButton } from '@/components/WalletButton';
@@ -94,6 +96,7 @@ export function DashboardClient() {
 
           {/* Center: task form + feed */}
           <section className="col-span-12 space-y-3 lg:col-span-6">
+            <TokenFactoryCard />
             <TaskForm />
             <TaskFeed />
           </section>
@@ -101,6 +104,7 @@ export function DashboardClient() {
           {/* Right rail: network graph + dex + cex */}
           <aside className="col-span-12 space-y-3 lg:col-span-3">
             <NetworkGraph />
+            <LiquidityFlowCard />
             <DexPriceWidget />
             <CexPrepCard />
           </aside>

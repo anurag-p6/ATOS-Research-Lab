@@ -10,13 +10,17 @@ import { Mono } from './ui/Mono';
 interface RealPrice {
   mocked: false;
   pool: string;
+  listed?: boolean;
   token0: { address: string; symbol: string; decimals: number };
   token1: { address: string; symbol: string; decimals: number };
   fee: number;
   tick: number;
+  liquidity?: string;
   sqrtPriceX96: string;
   priceToken1PerToken0: number;
-  priceToken0PerToken1: number;
+  priceWethPerAtos?: number;
+  priceAtosPerWeth?: number;
+  uniswapUrl?: string | null;
   fetchedAt: number;
 }
 
@@ -75,6 +79,8 @@ export function DexPriceWidget() {
               <AlertTriangle size={11} aria-hidden="true" />
               MOCKED
             </Badge>
+          ) : query.data && !query.data.mocked && query.data.listed === false ? (
+            <Badge tone="amber">unlisted</Badge>
           ) : query.data ? (
             <Badge tone="cyan">live</Badge>
           ) : (
@@ -141,6 +147,16 @@ export function DexPriceWidget() {
               <span>tick</span>
               <span className="atos-numeric text-operator-text/85">{query.data.tick}</span>
             </div>
+            {query.data.uniswapUrl ? (
+              <a
+                href={query.data.uniswapUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="mt-1 inline-block text-operator-cyan hover:underline"
+              >
+                Trade on Uniswap →
+              </a>
+            ) : null}
           </div>
         ) : query.data?.mocked ? (
           <p className="mt-3 border-t border-line pt-2 text-[11px] text-operator-muted">
