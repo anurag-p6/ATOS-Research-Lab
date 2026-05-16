@@ -1,10 +1,18 @@
-# ATOS Rust agents: three processes (deployer / monitor / governance).
-# After deployer starts once, set DEPLOYER_PEER_ID in `.env` to its libp2p peer id
-# (from logs or GET http://localhost:3001/status), then `docker compose up -d` again
-# so monitor and governance can dial the deployer on the compose network.
+# ATOS Rust agents — 3-node libp2p network (Deployer + Monitor + Governance)
+#
+# Discovery strategy:
+#   - Deployer starts first and exposes TCP port 4001 on the compose network.
+#   - Monitor and Governance bootstrap to /ip4/atos-deployer/tcp/4001.
+#   - mDNS is also active for LAN testing outside Docker.
+#
+# Usage:
+#   docker compose up --build        # build + run all three agents
+#   docker compose logs -f            # tail all logs
+#   docker compose stop atos-monitor  # demo fault tolerance
+#   docker compose start atos-monitor # agent rejoins mesh via bootstrap
 
 services:
-  deployer:
+  atos-deployer:
     build:
       context: .
       dockerfile: Dockerfile
@@ -12,39 +20,84 @@ services:
     command:
       ["--role", "deployer", "--port", "4001", "--api-port", "3001"]
     ports:
-      - "4001:4001"
-      - "3001:3001"
+      - "4001:4001"   # libp2p TCP (for cross-host bootstrap if needed)
+      - "3001:3001"   # Axum HTTP API
+    networks:
+      - atos-net
     environment:
       RUST_LOG: ${RUST_LOG:-info}
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:3001/status || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 6
+      start_period: 15s
 
-  monitor:
+  atos-monitor:
     build:
       context: .
       dockerfile: Dockerfile
     container_name: atos-monitor
     command:
-      ["--role", "monitor", "--port", "4002", "--api-port", "3002"]
+      - "--role"
+      - "monitor"
+      - "--port"
+      - "4002"
+      - "--api-port"
+      - "3002"
+      - "--bootstrap"
+      - "/ip4/atos-deployer/tcp/4001"
     ports:
       - "4002:4002"
       - "3002:3002"
+    networks:
+      - atos-net
     environment:
       RUST_LOG: ${RUST_LOG:-info}
-      ATOS_BOOTSTRAP_PEERS: ${ATOS_BOOTSTRAP_PEERS:-}
     depends_on:
-      - deployer
+      atos-deployer:
+        condition: service_healthy
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:3002/status || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 6
+      start_period: 20s
 
-  governance:
+  atos-governance:
     build:
       context: .
       dockerfile: Dockerfile
     container_name: atos-governance
     command:
-      ["--role", "governance", "--port", "4003", "--api-port", "3003"]
+      - "--role"
+      - "governance"
+      - "--port"
+      - "4003"
+      - "--api-port"
+      - "3003"
+      - "--bootstrap"
+      - "/ip4/atos-deployer/tcp/4001"
     ports:
       - "4003:4003"
       - "3003:3003"
+    networks:
+      - atos-net
     environment:
       RUST_LOG: ${RUST_LOG:-info}
-      ATOS_BOOTSTRAP_PEERS: ${ATOS_BOOTSTRAP_PEERS:-}
     depends_on:
-      - deployer
+      atos-deployer:
+        condition: service_healthy
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:3003/status || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 6
+      start_period: 20s
+
+networks:
+  atos-net:
+    driver: bridge

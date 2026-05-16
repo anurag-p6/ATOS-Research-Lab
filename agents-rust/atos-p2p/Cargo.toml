@@ -7,6 +7,14 @@ description = "ATOS libp2p layer: gossipsub + mDNS + Noise + Yamux over TCP"
 
 [dependencies]
 anyhow = "1"
+# IPLD / content addressing
+cid = { version = "0.11", features = ["serde-codec"] }
+multihash = "0.19"
+sha2 = "0.10"
+# Crystal-Kyber / ML-KEM (NIST FIPS 203) — pure Rust, no FFI
+ml-kem = { version = "0.3", features = ["getrandom"] }
+hex = "0.4"
+# networking
 futures = "0.3"
 libp2p = { version = "0.54", features = [
     "tokio",

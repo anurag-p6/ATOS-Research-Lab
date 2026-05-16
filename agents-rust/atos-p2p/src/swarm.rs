@@ -1,5 +1,6 @@
 use crate::behaviour::{AtosBehaviour, OutEvent};
 use crate::command::{Cmd, P2pSnapshot};
+use crate::ipld;
 use crate::message::AgentMessage;
 use crate::topics;
 use crate::util::{now_millis, uuid_like_id};
@@ -36,9 +37,19 @@ async fn build_and_run_swarm(
 ) -> Result<()> {
     let peer_id = keypair.public().to_peer_id();
 
+    // Tune for a small 3-node demo network:
+    //  - flood_publish: always forward to all connected peers, bypassing mesh-size checks
+    //  - lower mesh_n thresholds so the mesh is considered healthy with just 2 peers
+    //  - fast heartbeat so the mesh converges within seconds of peer connection
     let gossipsub_config = gossipsub::ConfigBuilder::default()
-        .heartbeat_initial_delay(Duration::from_secs(5))
+        .heartbeat_initial_delay(Duration::from_secs(2))
+        .heartbeat_interval(Duration::from_secs(1))
         .validation_mode(gossipsub::ValidationMode::Permissive)
+        .flood_publish(true)
+        .mesh_n(2)
+        .mesh_n_low(1)
+        .mesh_n_high(4)
+        .mesh_outbound_min(1)
         .build()
         .map_err(|e| anyhow::anyhow!("gossipsub config: {e}"))?;
 
@@ -92,8 +103,13 @@ async fn build_and_run_swarm(
             cmd = cmd_rx.recv() => {
                 match cmd {
                     Some(Cmd::Publish { topic, payload, respond }) => {
+                        // Compute a CIDv1(dag-json, sha2-256) of the payload bytes
+                        // so every gossipsub message carries a content-addressed ID.
+                        let payload_bytes = serde_json::to_vec(&payload).unwrap_or_default();
+                        let ipld_cid = ipld::compute_cid(&payload_bytes);
                         let msg = AgentMessage {
                             id: uuid_like_id(),
+                            ipld_cid,
                             role: role.clone(),
                             topic: topic.clone(),
                             timestamp: now_millis(),
@@ -123,8 +139,22 @@ async fn build_and_run_swarm(
             }
             event = swarm.select_next_some() => {
                 match event {
-                    SwarmEvent::Behaviour(OutEvent::Mdns(e)) => {
-                        tracing::debug!(?e, "mdns");
+                    SwarmEvent::Behaviour(OutEvent::Mdns(mdns::Event::Discovered(list))) => {
+                        for (peer_id, multiaddr) in list {
+                            tracing::info!(peer = %peer_id, addr = %multiaddr, "mDNS discovered — dialing");
+                            if let Err(e) = swarm.dial(multiaddr) {
+                                tracing::warn!(peer = %peer_id, "dial failed: {e}");
+                            }
+                            // add_explicit_peer keeps the peer in the gossipsub mesh
+                            // even if the mesh falls below mesh_n_low
+                            swarm.behaviour_mut().gossipsub.add_explicit_peer(&peer_id);
+                        }
+                    }
+                    SwarmEvent::Behaviour(OutEvent::Mdns(mdns::Event::Expired(list))) => {
+                        for (peer_id, _) in list {
+                            tracing::info!(peer = %peer_id, "mDNS expired");
+                            swarm.behaviour_mut().gossipsub.remove_explicit_peer(&peer_id);
+                        }
                     }
                     SwarmEvent::Behaviour(OutEvent::Gossipsub(gossipsub::Event::Message {
                         message,
