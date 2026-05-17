@@ -390,7 +390,7 @@ CEX_REPORT_INTERVAL_SECS=604800                                # 7 days
 
 ## Relationship to Existing ATOS Workflows
 
-The CEX listing workflow is **Workflow 3** in the ATOS acceptance criteria (alongside Deploy and Monitor). It builds on the Day 4 **CEX Metadata Stub** described in `CLAUDE.md` and extends it into a full pipeline:
+The CEX listing workflow is **Workflow 3** in the ATOS acceptance criteria (alongside Deploy and Monitor). It builds on the governance **CEX metadata stub** in the PoC and extends it into a full pipeline:
 
 - **Day 4 stub** → single JSON artifact with a CID, displayed in dashboard
 - **Full CEX workflow** → IPLD DAG of linked artifacts, revision tracking, submission pipeline, post-listing monitoring
