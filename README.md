@@ -82,6 +82,13 @@ flowchart LR
     D --> CW
     M --> CW
     G --> CW
+
+    style FE fill:#dbeafe,stroke:#3b82f6,color:#1e3a5f
+    style EDGE fill:#fef9c3,stroke:#eab308,color:#3f3000
+    style APP fill:#dcfce7,stroke:#22c55e,color:#14532d
+    style P2P fill:#ede9fe,stroke:#8b5cf6,color:#2e1065
+    style DATA fill:#fee2e2,stroke:#ef4444,color:#450a0a
+    style EXT fill:#ffedd5,stroke:#f97316,color:#431407
 ```
 
 ## Request Flow (Task Lifecycle)

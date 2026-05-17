@@ -24,56 +24,79 @@ Shows every layer of the system and how they talk to each other.
 
 ```mermaid
 flowchart TD
-    YOU("👤 You — the Operator")
+    YOU(["👤 Operator"])
 
-    subgraph BROWSER["Browser"]
-        PRIVY("🔐 Privy Auth\nEmail or Embedded MPC Wallet\nno seed phrase needed")
-        UI("📊 Dashboard UI\n─────────────────\nToken Deployer Agent\nTask Form and Feed\nAgent Status Cards\nDEX Price Widget\nCEX Metadata Card")
+    subgraph BROWSER["🌐 Browser Layer"]
+        PRIVY["🔐 Privy Auth\nEmail · Embedded MPC Wallet\nno seed phrase needed"]
+        UI["📊 Dashboard UI\nAgent Status Cards · Task Form + Feed\nDEX Price Widget · CEX Metadata Card"]
     end
 
-    subgraph NEXTJS["Next.js Server  (localhost:3000)"]
-        PROXY("🔌 API Route Handlers\nserver-side proxy — browser never\ncalls agents or RPC directly\n─────────────────\nGET  /api/agents\nGET  /api/tasks\nGET  /api/dex/price\nGET  /api/dex/pool\nPOST /api/task")
+    subgraph NEXTJS["⚙️ Next.js Server  ·  localhost:3000"]
+        PROXY["🔌 API Route Handlers  (server-side proxy)\nGET /api/agents · GET /api/tasks\nGET /api/dex/price · POST /api/task"]
     end
 
-    subgraph AGENTS["🤖 Rust Agent Network  (libp2p)"]
-        DEP("Deployer Agent\nHTTP :3001  P2P :4001")
-        MON("Monitor Agent\nHTTP :3002  P2P :4002")
-        GOV("Governance Agent\nHTTP :3003  P2P :4003")
-        BUS[("📡 Gossipsub P2P Bus\natos/tasks\natos/status\natos/heartbeat\n\nAgents auto-discover\neach other via mDNS")]
+    subgraph AGENTS["🤖 Rust Agent Network  ·  libp2p"]
+        DEP["🔵 Deployer Agent\nHTTP :3001  ·  P2P :4001"]
+        MON["🟢 Monitor Agent\nHTTP :3002  ·  P2P :4002"]
+        GOV["🟣 Governance Agent\nHTTP :3003  ·  P2P :4003"]
+        BUS[("📡 Gossipsub Topic Bus\natos/tasks · atos/status · atos/heartbeat\nauto-discovered via mDNS")]
     end
 
-    subgraph ONCHAIN["⛓️  On-Chain (two testnets)"]
-        subgraph SEP["Ethereum Sepolia  · chain 11155111"]
-            FACT_S("ATOSTokenFactory\ndeploy tokens without Foundry")
-            TOKEN_S("ATOSToken  ERC-20\ndeployed by user")
-            UNI("Uniswap V3 Pool\nATOS / WETH price")
+    subgraph ONCHAIN["⛓️ On-Chain  ·  Two Testnets"]
+        subgraph SEP["Ethereum Sepolia  ·  chain 11155111"]
+            FACT_S["ATOSTokenFactory\ndeploy tokens from dashboard"]
+            TOKEN_S["ATOSToken  ERC-20\ndeployed by operator"]
+            UNI["🦄 Uniswap V3 Pool\nATOS / WETH price"]
         end
-        subgraph CAL["Filecoin Calibration  · chain 314159"]
-            FACT_C("ATOSTokenFactory\ndeploy tokens without Foundry")
-            TOKEN_C("ATOSToken  ERC-20\ndeployed by user")
+        subgraph CAL["Filecoin Calibration  ·  chain 314159"]
+            FACT_C["ATOSTokenFactory\ndeploy tokens from dashboard"]
+            TOKEN_C["ATOSToken  ERC-20\ndeployed by operator"]
         end
     end
 
-    YOU -->|"1  Login"| PRIVY
-    PRIVY -->|"2  Authenticated session"| UI
-    UI <-->|"3  React Query polls every 5 s"| PROXY
-    PROXY -->|"4  HTTP GET status / tasks / events"| DEP
-    PROXY -->|"4  HTTP GET status / tasks / events"| MON
-    PROXY -->|"4  HTTP GET status / tasks / events"| GOV
-    PROXY -->|"5  POST /task  forward to agent"| DEP
+    YOU -->|"① Login"| PRIVY
+    PRIVY -->|"② Authenticated session"| UI
+    UI <-->|"③ React Query polls every 5s"| PROXY
+    PROXY -->|"④ HTTP GET  status / tasks / events"| DEP
+    PROXY -->|"④ HTTP GET  status / tasks / events"| MON
+    PROXY -->|"④ HTTP GET  status / tasks / events"| GOV
+    PROXY -->|"⑤ POST /task  forward to agent"| DEP
 
     DEP <-->|"gossipsub"| BUS
     MON <-->|"gossipsub"| BUS
     GOV <-->|"gossipsub"| BUS
 
-    PRIVY -->|"6  Wallet signs tx\n    writeContract"| FACT_S
-    PRIVY -->|"6  Wallet signs tx\n    writeContract"| FACT_C
-    FACT_S -->|"deploys new contract"| TOKEN_S
-    FACT_C -->|"deploys new contract"| TOKEN_C
+    PRIVY -->|"⑥ wallet signs tx · writeContract"| FACT_S
+    PRIVY -->|"⑥ wallet signs tx · writeContract"| FACT_C
+    FACT_S -->|"deploys"| TOKEN_S
+    FACT_C -->|"deploys"| TOKEN_C
 
     TOKEN_S -->|"seeded with liquidity"| UNI
-    PROXY -->|"7  eth_call  slot0 price"| UNI
+    PROXY -->|"⑦ eth_call  slot0 price"| UNI
     MON -->|"eth_getLogs  Transfer events"| TOKEN_S
+
+    %% Node styles — dark terminal nodes, bright role-coded borders
+    style YOU      fill:#0d1117,stroke:#00d4ff,stroke-width:2px,color:#e2e8f0
+    style PRIVY    fill:#0d1117,stroke:#00d4ff,stroke-width:1.5px,color:#e2e8f0
+    style UI       fill:#0d1117,stroke:#00d4ff,stroke-width:1.5px,color:#e2e8f0
+    style PROXY    fill:#0d1117,stroke:#f59e0b,stroke-width:2px,color:#fcd34d
+    style DEP      fill:#0d1117,stroke:#3b82f6,stroke-width:2px,color:#93c5fd
+    style MON      fill:#0d1117,stroke:#10b981,stroke-width:2px,color:#6ee7b7
+    style GOV      fill:#0d1117,stroke:#7c3aed,stroke-width:2px,color:#c4b5fd
+    style BUS      fill:#0d1117,stroke:#f59e0b,stroke-width:2px,color:#fcd34d
+    style FACT_S   fill:#0d1117,stroke:#f59e0b,stroke-width:1.5px,color:#e2e8f0
+    style TOKEN_S  fill:#0d1117,stroke:#10b981,stroke-width:1.5px,color:#e2e8f0
+    style UNI      fill:#0d1117,stroke:#ff007a,stroke-width:2px,color:#fda4af
+    style FACT_C   fill:#0d1117,stroke:#f59e0b,stroke-width:1.5px,color:#e2e8f0
+    style TOKEN_C  fill:#0d1117,stroke:#3b82f6,stroke-width:1.5px,color:#e2e8f0
+
+    %% Subgraph styles — light tints per layer so connecting lines are visible
+    style BROWSER  fill:#e8f4ff,stroke:#00d4ff,stroke-width:1.5px,color:#0d1117
+    style NEXTJS   fill:#fffbeb,stroke:#f59e0b,stroke-width:1.5px,color:#0d1117
+    style AGENTS   fill:#f5f0ff,stroke:#7c3aed,stroke-width:1.5px,color:#0d1117
+    style ONCHAIN  fill:#f0fdf4,stroke:#10b981,stroke-width:1.5px,color:#0d1117
+    style SEP      fill:#fefce8,stroke:#f59e0b,stroke-width:1px,color:#0d1117
+    style CAL      fill:#eff6ff,stroke:#3b82f6,stroke-width:1px,color:#0d1117
 ```
 
 ---
@@ -127,25 +150,30 @@ Shows how the three Rust agents discover each other and share messages without a
 
 ```mermaid
 flowchart LR
-    subgraph MESH["libp2p Gossipsub Mesh  (auto-discovered via mDNS)"]
+    subgraph MESH["libp2p Gossipsub Mesh  ·  auto-discovered via mDNS"]
         direction TB
-        DEP("🟢 Deployer\nExecutes deploy tasks\nListens: atos/tasks")
-        MON("🟢 Monitor\nPolls on-chain events\nPublishes: atos/status")
-        GOV("🟢 Governance\nBuilds CEX metadata\nPublishes: atos/status")
+        DEP["🔵 Deployer\nExecutes deploy tasks\nListens: atos/tasks"]
+        MON["🟢 Monitor\nPolls on-chain events\nPublishes: atos/status"]
+        GOV["🟣 Governance\nBuilds CEX metadata\nPublishes: atos/status"]
         BUS[("📡 Topic Bus\natos/tasks\natos/status\natos/heartbeat")]
         DEP <-->|publish / receive| BUS
         MON <-->|publish / receive| BUS
         GOV <-->|publish / receive| BUS
     end
 
-    DASH("Dashboard\nNext.js") -->|"POST /task\nHTTP"| DEP
-    DASH -->|"GET /status\nGET /events\nHTTP"| DEP & MON & GOV
+    DASH["📊 Dashboard\nNext.js"] -->|"POST /task  HTTP"| DEP
+    DASH -->|"GET /status · GET /events  HTTP"| DEP & MON & GOV
 
-    DEP -->|"eth_sendRawTransaction\nsign with server key"| RPC("Ethereum RPC\nSepolia")
-    MON -->|"eth_getLogs\nread Transfer events"| RPC
+    DEP -->|"eth_sendRawTransaction\nsign with server key"| RPC["Ethereum RPC\nSepolia"]
+    MON -->|"eth_getLogs\nTransfer events"| RPC
 
-    style MESH fill:#0a0a0f,stroke:#00d4ff,stroke-width:1px,color:#e2e8f0
-    style BUS fill:#0a0a0f,stroke:#f59e0b,stroke-width:1px,color:#f59e0b
+    style DASH   fill:#0d1117,stroke:#00d4ff,stroke-width:2px,color:#e2e8f0
+    style DEP    fill:#0d1117,stroke:#3b82f6,stroke-width:2px,color:#93c5fd
+    style MON    fill:#0d1117,stroke:#10b981,stroke-width:2px,color:#6ee7b7
+    style GOV    fill:#0d1117,stroke:#7c3aed,stroke-width:2px,color:#c4b5fd
+    style BUS    fill:#0d1117,stroke:#f59e0b,stroke-width:2px,color:#fcd34d
+    style RPC    fill:#0d1117,stroke:#10b981,stroke-width:1.5px,color:#e2e8f0
+    style MESH   fill:#e8f4ff,stroke:#00d4ff,stroke-width:1.5px,color:#0d1117
 ```
 
 ---
